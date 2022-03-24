@@ -157,7 +157,7 @@ function Game(props: GameProps) {
   const [guesses, setGuesses] = useLocalStorage<string[]>(guessesDayStoragePrefix+dayNum, puzzle.initialGuesses);
   const [currentGuess, setCurrentGuess] = useState<string>("");
   const [hint, setHint] = useState<string>(getHintFromState());
-  const [selectedColumn, setSelectedColumn] = useState<number>(-1);
+  const [selectedColumn, setSelectedColumn] = useState<number>(0);
    
   const tableRef = useRef<HTMLTableElement>(null);
   async function share(copiedHint: string, text?: string) {
