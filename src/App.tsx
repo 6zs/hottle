@@ -1,5 +1,5 @@
 import "./App.css";
-import { day1Date, todayDate, maxGuesses, dateToNumber, day1Number, todayDayNum, dayNum } from "./util";
+import { day1Date, todayDate, maxGuesses, dateToNumber, day1Number, todayDayNum, dayNum, isDev } from "./util";
 import Game, { emojiBlock, GameState } from "./Game";
 import { useEffect, useState } from "react";
 import { About } from "./About";
@@ -62,7 +62,7 @@ function App() {
   const [enterLeft, setEnterLeft] = useSetting<boolean>("enter-left", false);
 
   useEffect(() => { 
-    if (Number(dayNum) > Number(todayDayNum)) {
+    if (!isDev && Number(dayNum) > Number(todayDayNum)) {
       window.location.replace(redirectTo);
       return;
     }
@@ -114,6 +114,8 @@ function App() {
     return date.toLocaleDateString(locale, { day: "numeric" }) + result;
   }
 
+  const maxDate = isDev ? new Date("January 1 3000") : todayDate;
+  const minDate = isDev ? new Date("January 1 2000") : day1Date;
 
   return (
     <div className={"App-container" + (colorBlind ? " color-blind" : "")}>
@@ -151,12 +153,12 @@ function App() {
       {page === "about" && <About />}
       {page === "stats" && <Stats />}
       {page === "calendar" && <Calendar 
-        maxDate={todayDate}
-        minDate={day1Date}
+        maxDate={maxDate}
+        minDate={minDate}
         minDetail={"month"}
         maxDetail={"month"}
         onClickDay={(value: Date, event: any) => {
-          if ( value >= day1Date && value <= todayDate  ) {
+          if (value >= minDate && value <= maxDate) {
             window.location.replace(window.location.origin + "?d="+(1 + dateToNumber(value) - day1Number));
           }
         }}
@@ -191,6 +193,7 @@ function App() {
               value={keyboard}
               onChange={(e) => setKeyboard(e.target.value)}
             >
+              <option value="abcdefghij-klmnopqrs-BtuvwxyzE">A-Z</option>
               <option value="qwertyuiop-asdfghjkl-BzxcvbnmE">QWERTY</option>
               <option value="azertyuiop-qsdfghjklm-BwxcvbnE">AZERTY</option>
               <option value="qwertzuiop-asdfghjkl-ByxcvbnmE">QWERTZ</option>

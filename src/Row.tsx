@@ -9,7 +9,7 @@ export enum RowState {
 interface RowProps {
   rowState: RowState;
   cluedLetters: CluedLetter[];
-  correctGuess: string;
+  cluedColumn: CluedLetter[];
   annotation?: string;
 }
 
@@ -22,7 +22,7 @@ export function Row(props: RowProps) {
     .map(({ clue, letter }, i) => {
       let letterClass = "Row-letter";
       if (isLockedIn && clue !== undefined) {
-        letterClass += " " + clueClass(clue, props.correctGuess.lastIndexOf(letter) !== -1);
+        letterClass += " " + clueClass(clue);
       }
       return (
         <td

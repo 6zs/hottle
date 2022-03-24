@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Row, RowState } from "./Row";
 import dictionary from "./dictionary.json";
-import { Clue, hotclue, CluedLetter, describeClue } from "./clue";
+import { Clue, hotclue, CluedLetter, describeClue, hotClueDistance } from "./clue";
 import { Keyboard } from "./Keyboard";
 import targetList from "./targets.json";
 import {
@@ -157,6 +157,7 @@ function Game(props: GameProps) {
   const [guesses, setGuesses] = useLocalStorage<string[]>(guessesDayStoragePrefix+dayNum, puzzle.initialGuesses);
   const [currentGuess, setCurrentGuess] = useState<string>("");
   const [hint, setHint] = useState<string>(getHintFromState());
+  const [selectedColumn, setSelectedColumn] = useState<number>(-1);
    
   const tableRef = useRef<HTMLTableElement>(null);
   async function share(copiedHint: string, text?: string) {
@@ -206,11 +207,12 @@ function Game(props: GameProps) {
       );
       tableRef.current?.focus();
       setHint(getHintFromState());
+      setSelectedColumn((currentGuess.length+1 < 5) ? (currentGuess.length+1) : -1 );
     } else if (key === "Backspace") {
       setCurrentGuess((guess) => guess.slice(0, -1));
       setHint(getHintFromState());
+      setSelectedColumn(Math.max(0,currentGuess.length-1));
     } else if (key === "Enter") {
-    
       if (currentGuess.length !== 5) {
         setHint("type more letters");
         return;
@@ -223,7 +225,8 @@ function Game(props: GameProps) {
         setHint(`that's not in the word list`);
         return;
       }
-     
+
+      setSelectedColumn(0);
       setGuesses((guesses) => guesses.concat([currentGuess]));
       setCurrentGuess("");
       speak(describeClue(hotclue(currentGuess, puzzle.target)));
@@ -267,47 +270,70 @@ function Game(props: GameProps) {
     return reduced;
   };
 
+  let cluedColumn: CluedLetter[] = selectedColumn !== -1 ? new Array(guesses.length) : [];
+  if (selectedColumn !== -1) {
+    guesses.map((guess,i) => {
+      const lockedIn = i < guesses.length;
+      if (lockedIn) {
+        let clue = hotclue(guess, puzzle.target);
+        cluedColumn[i] = clue[selectedColumn];
+      }
+    });
+  }
 
-  const realMaxGuesses = Math.max(guesses.length,props.maxGuesses);
   let letterInfo = new Map<string, Clue>();
-  const correctGuess = 
-    gameState === GameState.Won 
-    ? "" 
-    : guesses.includes(puzzle.target) 
-    ? puzzle.target
-    : "";
 
-  const tableRows = Array(realMaxGuesses)
+  for (const { clue, letter } of cluedColumn) {
+    
+    if (clue === undefined) continue;
+
+    if (clue === Clue.Absent || clue === Clue.Correct ) {
+      letterInfo.set(letter, clue);
+    } else if (clue === Clue.Elsewhere ) {
+      letterInfo.set(letter, Clue.Absent);
+    }
+
+    if (clue === Clue.Absent || clue === Clue.Elsewhere) {
+      let proximityLetters:string[] = [];
+      for(let i = 0; i <= hotClueDistance; ++i) {
+        let charCodeLeft = letter.charCodeAt(0) - i;
+        let charCodeRight = letter.charCodeAt(0) + i;
+        if (charCodeLeft >= 'a'.charCodeAt(0)) {
+          proximityLetters = [...proximityLetters, String.fromCharCode(charCodeLeft)];
+        } 
+        if (charCodeRight <= 'z'.charCodeAt(0)) {
+          proximityLetters = [...proximityLetters, String.fromCharCode(charCodeRight)];
+        }
+      }
+      for (let letter of proximityLetters) {
+        const old = letterInfo.get(letter);
+        if (old === undefined || old === Clue.Elsewhere) {
+          letterInfo.set(letter, clue);
+        }   
+      }
+    }
+  }
+
+
+  const tableRows = Array(props.maxGuesses)
     .fill(undefined)
     .map((_, i) => {
       const guess = [...guesses, currentGuess][i] ?? "";
       const cluedLetters = hotclue(guess, puzzle.target);
-      const isTarget = puzzle.target === guess;
-      const isBonusGuess = i === maxGuesses;
-      const lockedIn = (!isBonusGuess && i < guesses.length) || (isBonusGuess && guesses.length === realMaxGuesses);
-      const isAllGreen = lockedIn && cluedLetters.reduce( reduceCorrect, {clue: Clue.Correct, letter: ""} ).clue === Clue.Correct;                
-      if (lockedIn) {
-        for (const { clue, letter } of cluedLetters) {
-          if (clue === undefined) break;
-          const old = letterInfo.get(letter);
-          if (old === undefined || clue > old) {
-            letterInfo.set(letter, clue);
-          }
-        }
-      }
+      const lockedIn = i < guesses.length;
       return (
         <Row
           key={i}         
           rowState={
             lockedIn
               ? RowState.LockedIn
-              : (i === guesses.length || isBonusGuess)
+              : (i === guesses.length)
               ? RowState.Editing
               : RowState.Pending
           }
           cluedLetters={cluedLetters}
-          correctGuess={correctGuess}
-          annotation={isBonusGuess ? "bonus!" : ((isAllGreen && !isTarget) ? "huh?" : `\u00a0`)}          
+          cluedColumn={cluedColumn}
+          annotation={`\u00a0`}          
         />
       );
     });
@@ -325,6 +351,7 @@ function Game(props: GameProps) {
         <span>day {dayNum}{`${cheatText}`}</span>
         {canNext && <span>| <a href={nextLink}>next</a></span>}
       </div>
+     
       <table
         className="Game-rows"
         tabIndex={0}
@@ -361,7 +388,6 @@ function Game(props: GameProps) {
       <Keyboard
         layout={props.keyboardLayout}
         letterInfo={letterInfo}
-        correctGuess={correctGuess}
         onKey={onKey}
       />
     </div>

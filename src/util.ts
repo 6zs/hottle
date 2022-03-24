@@ -1,8 +1,8 @@
 import dictionary from "./dictionary.json";
 
 export const gameName = "hottle";
-export const maxGuesses = 9;
-
+export const maxGuesses = 6;
+export const isDev = true;
 
 export function dateToNumber(date: Date) : number {
   return Number(
