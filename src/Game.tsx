@@ -97,7 +97,11 @@ function randomTarget(random: ()=>number): string {
 function initialGuess(target: string, random: ()=>number): [string] {
   let candidate: string;
   do {
-    candidate = pick(eligible, random);
+    candidate = "";
+    for(var i = 0; i < 5; ++i )
+    {
+      candidate = candidate +  String.fromCharCode( 'a'.charCodeAt(0) + Math.floor(26 * random()) );
+    } 
   } while(!isGoodInitialGuess(target, candidate));
   return [candidate];
 }
