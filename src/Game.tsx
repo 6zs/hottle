@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Row, RowState } from "./Row";
 import dictionary from "./dictionary.json";
-import { Clue, clue, CluedLetter, describeClue, xorclue } from "./clue";
+import { Clue, hotclue, CluedLetter, describeClue } from "./clue";
 import { Keyboard } from "./Keyboard";
 import targetList from "./targets.json";
 import {
@@ -23,8 +23,8 @@ export enum GameState {
   Lost,
 }
 
-export const gameDayStoragePrefix = "game-day-";
-export const guessesDayStoragePrefix = "guesses-day-";
+export const gameDayStoragePrefix = "hottle-game-day-";
+export const guessesDayStoragePrefix = "hottle-guesses-day-";
 
 function useLocalStorage<T>(
   key: string,
@@ -57,26 +57,9 @@ interface GameProps {
 
 const eligible = targetList.slice(0, targetList.indexOf("murky") + 1).filter((word) => word.length === 5); // Words no rarer than this one
 
-function isValidCluePair(word1: string, word2: string) {
-  if (/\*/.test(word1)) {
+function isValidClue(word: string) {
+  if (/\*/.test(word)) {
     return false;
-  }
-  if (/\*/.test(word2)) {
-    return false;
-  }
-  if (word1.length !== word2.length) {
-    return false;
-  }
-  if (word1 === word2) {
-    return false;
-  }
-  for (let i = 0; i < word1.length; ++i) {
-    if(word1[i] === word2[i]) {
-      return false;
-    }
-    if (word2.lastIndexOf(word1[i]) !== -1) {
-      return false;
-    }
   }
   return true;
 }
@@ -93,56 +76,52 @@ function countMatching(cluedLetters: CluedLetter[]) : Map<Clue, number> {
   return counts;
 }
 
-function isGoodInitialGuess(targets: [string,string], candidate: string) {
+function isGoodInitialGuess(target: string, candidate: string) {
   if (/\*/.test(candidate)) {
     return false;
   }
-  let hints1 = clue(candidate, targets[0]);
-  let hints2 = clue(candidate, targets[1]);
-  let green1 = countMatching(hints1).get(Clue.Correct) ?? 0;
-  let yellow1 = countMatching(hints1).get(Clue.Elsewhere) ?? 0;
-  let green2 = countMatching(hints2).get(Clue.Correct) ?? 0;
-  let yellow2 = countMatching(hints2).get(Clue.Elsewhere) ?? 0;  
-  return green1+yellow1 < 5 && green2+yellow2 < 5;
+  let hints = hotclue(candidate, target);
+  let green = countMatching(hints).get(Clue.Correct) ?? 0;
+  let yellow = countMatching(hints).get(Clue.Elsewhere) ?? 0;
+  return green != 5;
 }
 
-function randomTargets(random: ()=>number): [string,string] {
-  let candidate1: string;
-  let candidate2: string;
-  do {
-    candidate1 = pick(eligible, random);
-    candidate2 = pick(eligible, random);
-  } while (!isValidCluePair(candidate1,candidate2));
-  return [candidate1, candidate2];
-}
-
-function initialGuess(targets: [string,string], random: ()=>number): [string] {
+function randomTarget(random: ()=>number): string {
   let candidate: string;
   do {
     candidate = pick(eligible, random);
-  } while(!isGoodInitialGuess(targets, candidate));
-  return [candidate];
-}
-
-function randomClue(targets: string[], random: ()=>number) {
-  let candidate: string;
-  do {
-    candidate = pick(eligible, random);
-  } while (targets.includes(candidate));
+  } while (!isValidClue(candidate));
   return candidate;
 }
 
-function gameOverText(state: GameState, targets: [string,string]) : string {
-  const verbed = state === GameState.Won ? "won" : "lost";
-  return `you ${verbed}! the answers were ${targets[0].toUpperCase()}, ${targets[1].toUpperCase()}. play again tomorrow`; 
+function initialGuess(target: string, random: ()=>number): [string] {
+  let candidate: string;
+  do {
+    candidate = pick(eligible, random);
+  } while(!isGoodInitialGuess(target, candidate));
+  return [candidate];
 }
 
+function randomClue(target: string, random: ()=>number) {
+  let candidate: string;
+  do {
+    candidate = pick(eligible, random);
+  } while (target === candidate || !isValidClue(target));
+  return candidate;
+}
+
+function gameOverText(state: GameState, target: string) : string {
+  const verbed = state === GameState.Won ? "won" : "lost";
+  return `you ${verbed}! the answers was ${target.toUpperCase()}. play again tomorrow`; 
+}
+
+const uniqueGameNumber = 100000;
 export function makePuzzle(dayNum: number) : Puzzle {
-  let random = makeRandom(dayNum);
-  let targets =  randomTargets(random);
+  let random = makeRandom(dayNum+uniqueGameNumber);
+  let target =  randomTarget(random);
   let puzzle: Puzzle = {
-    targets: targets,
-    initialGuesses: initialGuess(targets, random)
+    target: target,
+    initialGuesses: initialGuess(target, random)
   };
   return puzzle;
 }
@@ -152,7 +131,7 @@ export function emojiBlock(day: Day, colorBlind: boolean) : string {
     ? ["⬛", "🟦", "🟧"]
     : ["⬛", "🟨", "🟩"];
   return day.guesses.map((guess) =>
-        xorclue(clue(guess, day.puzzle.targets[0]),clue(guess, day.puzzle.targets[1]))
+        hotclue(guess, day.puzzle.target)
           .map((c) => emoji[c.clue ?? 0])
           .join("")
       )
@@ -160,7 +139,7 @@ export function emojiBlock(day: Day, colorBlind: boolean) : string {
 }
 
 export interface Puzzle {
-  targets: [string, string],
+  target: string,
   initialGuesses: string[]
 }
 
@@ -202,13 +181,7 @@ function Game(props: GameProps) {
 
   function getHintFromState() {    
     if  (gameState === GameState.Won || gameState === GameState.Lost) {
-      return gameOverText(gameState, puzzle.targets);
-    }
-    if (guesses.includes(puzzle.targets[0])) {
-      return `you got ${puzzle.targets[0].toUpperCase()}, one more to go`;
-    }     
-    if (guesses.includes(puzzle.targets[1])) {
-      return `you got ${puzzle.targets[1].toUpperCase()}, one more to go`;
+      return gameOverText(gameState, puzzle.target);
     }
     if ( guesses.length === 0 && currentGuess === undefined ) {
       return `start guessin'`;
@@ -219,12 +192,8 @@ function Game(props: GameProps) {
   const onKey = (key: string) => {
     if (gameState !== GameState.Playing) {
       return;
-    }
-
-    const bonusGuess = guesses.length === maxGuesses && puzzle.targets.includes(guesses[guesses.length-1]);
-    const realMaxGuesses = props.maxGuesses+(bonusGuess?1:0);
-  
-    if (guesses.length === realMaxGuesses) {
+    } 
+    if (guesses.length === props.maxGuesses) {
       return;
     }
     if (/^[a-z]$/i.test(key)) {
@@ -253,22 +222,15 @@ function Game(props: GameProps) {
      
       setGuesses((guesses) => guesses.concat([currentGuess]));
       setCurrentGuess("");
-      speak(describeClue(xorclue(clue(currentGuess, puzzle.targets[0]), clue(currentGuess, puzzle.targets[1]))))
+      speak(describeClue(hotclue(currentGuess, puzzle.target)));
       doWinOrLose();
     }
   };
 
   const doWinOrLose = () => {
-    if ( puzzle.targets.length !== 2 ) {
-      return;
-    }
-    if ( (guesses.includes(puzzle.targets[0]) && guesses.includes(puzzle.targets[1])) ) {
+    if (guesses.includes(puzzle.target)) {
       setGameState(GameState.Won);
     } else if (guesses.length >= props.maxGuesses) {
-      if (puzzle.targets.includes(guesses[guesses.length-1])) {
-        setHint("last chance! do a bonus guess")
-        return;
-      }        
       setGameState(GameState.Lost);
     } 
     setHint(getHintFromState());    
@@ -291,7 +253,7 @@ function Game(props: GameProps) {
 
   useEffect(() => {
     doWinOrLose();
-  }, [currentGuess, gameState, guesses, puzzle.targets]);
+  }, [currentGuess, gameState, guesses, puzzle.target]);
 
   let reduceCorrect = (prev: CluedLetter, iter: CluedLetter, currentIndex: number, array: CluedLetter[]) => {
     let reduced: CluedLetter = prev;
@@ -301,27 +263,22 @@ function Game(props: GameProps) {
     return reduced;
   };
 
-  const showBonusGuessRow =  
-    (gameState === GameState.Playing && guesses.length === maxGuesses && puzzle.targets.includes(guesses[guesses.length-1])) ||
-    (gameState !== GameState.Playing && guesses.length === (maxGuesses+1));
 
-  const realMaxGuesses = Math.max(guesses.length,(showBonusGuessRow ? props.maxGuesses+1 : props.maxGuesses ));
+  const realMaxGuesses = Math.max(guesses.length,props.maxGuesses);
   let letterInfo = new Map<string, Clue>();
   const correctGuess = 
     gameState === GameState.Won 
     ? "" 
-    : guesses.includes(puzzle.targets[0]) 
-    ? puzzle.targets[0]
-    : guesses.includes(puzzle.targets[1])
-    ? puzzle.targets[1]
+    : guesses.includes(puzzle.target) 
+    ? puzzle.target
     : "";
 
   const tableRows = Array(realMaxGuesses)
     .fill(undefined)
     .map((_, i) => {
       const guess = [...guesses, currentGuess][i] ?? "";
-      const cluedLetters = xorclue(clue(guess, puzzle.targets[0]),clue(guess, puzzle.targets[1]));
-      const isTarget = puzzle.targets.includes(guess);
+      const cluedLetters = hotclue(guess, puzzle.target);
+      const isTarget = puzzle.target === guess;
       const isBonusGuess = i === maxGuesses;
       const lockedIn = (!isBonusGuess && i < guesses.length) || (isBonusGuess && guesses.length === realMaxGuesses);
       const isAllGreen = lockedIn && cluedLetters.reduce( reduceCorrect, {clue: Clue.Correct, letter: ""} ).clue === Clue.Correct;                
@@ -351,7 +308,7 @@ function Game(props: GameProps) {
       );
     });
 
-  const cheatText = cheat ? ` ${puzzle.targets}` : "";
+  const cheatText = cheat ? ` ${puzzle.target}` : "";
   const canPrev = dayNum > 1;
   const canNext = dayNum < todayDayNum;
   const prevLink = "?d=" + (dayNum-1).toString();

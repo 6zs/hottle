@@ -1,7 +1,7 @@
 {
-  "name": "xordle",
+  "name": "hottle",
   "version": "0.1.0",
-  "homepage": "http://example.com/xordle/",
+  "homepage": "http://example.com/hottle/",
   "private": false,
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.1",
@@ -9,7 +9,7 @@
     "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^27.4.0",
     "@types/node": "^16.11.17",
-    "@types/react": "^17.0.38",
+    "@types/react": "^17.0.42",
     "@types/react-dom": "^17.0.11",
     "gh-pages": "^3.2.3",
     "react": "^17.0.2",

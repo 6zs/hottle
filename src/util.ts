@@ -1,6 +1,6 @@
 import dictionary from "./dictionary.json";
 
-export const gameName = "xordle";
+export const gameName = "hottle";
 export const maxGuesses = 9;
 
 
@@ -17,7 +17,6 @@ const todayNumber = dateToNumber(todayDate);
 export const day1Date = new Date('March 01 2022');
 export const day1Number = dateToNumber(day1Date);
 
-const rando = 0;
 const debugDay = new URLSearchParams(window.location.search).get("d") ?? undefined;
 export const cheat = new URLSearchParams(window.location.search).get("cheat") ?? undefined;
 export const dayNum : number = debugDay ? parseInt(debugDay) : 1 + todayNumber - day1Number;
