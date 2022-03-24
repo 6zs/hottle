@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/hottle/static/css/main.e256fbaf.css",
-    "main.js": "/hottle/static/js/main.0c0c023b.js",
+    "main.js": "/hottle/static/js/main.e7a6b7f6.js",
     "index.html": "/hottle/index.html",
     "main.e256fbaf.css.map": "/hottle/static/css/main.e256fbaf.css.map",
-    "main.0c0c023b.js.map": "/hottle/static/js/main.0c0c023b.js.map"
+    "main.e7a6b7f6.js.map": "/hottle/static/js/main.e7a6b7f6.js.map"
   },
   "entrypoints": [
     "static/css/main.e256fbaf.css",
-    "static/js/main.0c0c023b.js"
+    "static/js/main.e7a6b7f6.js"
   ]
 }
