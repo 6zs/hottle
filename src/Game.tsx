@@ -23,8 +23,8 @@ export enum GameState {
   Lost,
 }
 
-export const gameDayStoragePrefix = "hottle-game-day-";
-export const guessesDayStoragePrefix = "hottle-guesses-day-";
+export const gameDayStoragePrefix = "warmle-game-day-";
+export const guessesDayStoragePrefix = "warmle-guesses-day-";
 
 function useLocalStorage<T>(
   key: string,
@@ -119,7 +119,7 @@ function gameOverText(state: GameState, target: string) : string {
   return `you ${verbed}! the answers was ${target.toUpperCase()}. play again tomorrow`; 
 }
 
-const uniqueGameNumber = 100000;
+const uniqueGameNumber = 200000;
 export function makePuzzle(dayNum: number) : Puzzle {
   let random = makeRandom(dayNum+uniqueGameNumber);
   let target =  randomTarget(random);

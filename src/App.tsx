@@ -21,8 +21,8 @@ function deserializeStorage(serialized: string) {
   }
 }
 
-const redirectFrom = "example.com"//6zs.github.io";
-const redirectTo = "https://hottle.xyz/";
+const redirectFrom = "6zs.github.io";
+const redirectTo = "https://warmle.org/";
 const save = new URLSearchParams(window.location.search).get("save") ?? "";
 
 function useSetting<T>(
@@ -126,7 +126,7 @@ function App() {
             fontStyle: "inherit",
           }}
         >
-         hottle
+         Warmle
         </span>
       </h1>
       <div className="top-right">
