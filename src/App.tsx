@@ -57,7 +57,7 @@ function App() {
   const [colorBlind, setColorBlind] = useSetting<boolean>("colorblind", false);
   const [keyboard, setKeyboard] = useSetting<string>(
     "keyboard",
-    "qwertyuiop-asdfghjkl-BzxcvbnmE"
+    "abcdefghij-klmnopqrs-BtuvwxyzE"
   );
   const [enterLeft, setEnterLeft] = useSetting<boolean>("enter-left", false);
 

@@ -293,24 +293,45 @@ function Game(props: GameProps) {
       letterInfo.set(letter, Clue.Absent);
     }
 
-    if (clue === Clue.Absent || clue === Clue.Elsewhere) {
-      let proximityLetters:string[] = [];
-      for(let i = 0; i <= hotClueDistance; ++i) {
-        let charCodeLeft = letter.charCodeAt(0) - i;
-        let charCodeRight = letter.charCodeAt(0) + i;
-        if (charCodeLeft >= 'a'.charCodeAt(0)) {
-          proximityLetters = [...proximityLetters, String.fromCharCode(charCodeLeft)];
-        } 
-        if (charCodeRight <= 'z'.charCodeAt(0)) {
-          proximityLetters = [...proximityLetters, String.fromCharCode(charCodeRight)];
-        }
+    let proximityLetters:string[] = [];
+    let nonProximityLetters:string[] = [];
+    for (let charCode="a".charCodeAt(0); charCode <= "z".charCodeAt(0); ++charCode) {
+      let distance = letter.charCodeAt(0) - charCode;
+      if ( distance === 0 ) continue;
+      if ( Math.abs(distance) > hotClueDistance ) {
+        nonProximityLetters = [...nonProximityLetters, String.fromCharCode(charCode)];
       }
+      else {
+        proximityLetters = [...proximityLetters, String.fromCharCode(charCode)];
+      }
+    }
+
+    if (clue === Clue.Absent) {
+      for (let letter of proximityLetters) {
+        letterInfo.set(letter, Clue.Absent);
+      }
+    }
+
+    if (clue === Clue.Elsewhere) {
       for (let letter of proximityLetters) {
         const old = letterInfo.get(letter);
-        if (old === undefined || old === Clue.Elsewhere) {
-          letterInfo.set(letter, clue);
-        }   
+        if (old === undefined) {
+          letterInfo.set(letter, Clue.Elsewhere);
+        }
       }
+      for (let letter of nonProximityLetters) {
+        const old = letterInfo.get(letter);
+        letterInfo.set(letter, Clue.Absent);
+      }      
+    }
+
+    if (clue === Clue.Correct) {
+      for (let letter of proximityLetters) {
+         letterInfo.set(letter, Clue.Absent);
+      }
+      for (let letter of nonProximityLetters) {
+        letterInfo.set(letter, Clue.Absent);
+      }  
     }
   }
 
