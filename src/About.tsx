@@ -23,7 +23,7 @@ export function About() {
         <br />
         <br />letters in your guess are:
         <br />🟩 green if it's the right letter
-        <br />🟨 yellow if yellow alphabetically within 3 letters of the right letter
+        <br />🟨 yellow if it's the wrong letter <b>in that spot</b> but it's close! (within 3 letters alphabetically)
         <br />⬛ grey if it's more than 3 away from the right letter
       </p>
       <hr />
