@@ -116,7 +116,7 @@ function randomClue(target: string, random: ()=>number) {
 
 function gameOverText(state: GameState, target: string) : string {
   const verbed = state === GameState.Won ? "won" : "lost";
-  return `you ${verbed}! the answers was ${target.toUpperCase()}. play again tomorrow`; 
+  return `You ${verbed}! The answer was ${target.toUpperCase()}. Play again tomorrow!`; 
 }
 
 const uniqueGameNumber = 200000;
@@ -189,7 +189,7 @@ function Game(props: GameProps) {
       return gameOverText(gameState, puzzle.target);
     }
     if ( guesses.length === 0 && currentGuess === undefined ) {
-      return `start guessin'`;
+      return `Start guessing!`;
     }
     return ``;
   }
@@ -214,15 +214,15 @@ function Game(props: GameProps) {
       setSelectedColumn(Math.max(0,currentGuess.length-1));
     } else if (key === "Enter") {
       if (currentGuess.length !== 5) {
-        setHint("type more letters");
+        setHint("More letters, please.");
         return;
       }
       if(guesses.includes(currentGuess)) {
-        setHint("you've already guessed that");
+        setHint("You've already guessed that!");
         return;
       }
       if (!dictionary.includes(currentGuess)) {
-        setHint(`that's not in the word list`);
+        setHint(`That's not in the word list!`);
         return;
       }
 

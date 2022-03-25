@@ -1,6 +1,6 @@
 import dictionary from "./dictionary.json";
 
-export const gameName = "warmle";
+export const gameName = "Warmle";
 export const maxGuesses = 6;
 export const isDev = false;
 
