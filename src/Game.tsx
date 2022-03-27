@@ -12,7 +12,9 @@ import {
   todayDayNum,
   cheat,
   maxGuesses,
-  makeRandom
+  makeRandom,
+  practice,
+  allowPractice
 } from "./util";
 
 import { Day } from "./Stats"
@@ -120,8 +122,8 @@ function gameOverText(state: GameState, target: string) : string {
 }
 
 const uniqueGameNumber = 200000;
-export function makePuzzle(dayNum: number) : Puzzle {
-  let random = makeRandom(dayNum+uniqueGameNumber);
+export function makePuzzle(seed: number) : Puzzle {
+  let random = makeRandom(seed+uniqueGameNumber);
   let target =  randomTarget(random);
   let puzzle: Puzzle = {
     target: target,
@@ -149,12 +151,31 @@ export interface Puzzle {
 
 function Game(props: GameProps) {
 
+  let seed: number = dayNum;
+  if (practice) {
+    seed = new Date().getMilliseconds();
+    if (!(new URLSearchParams(window.location.search).has("new"))) {
+      try {
+        let storedSeed = window.localStorage.getItem("practice");
+        if (storedSeed) {
+          seed = parseInt(storedSeed);
+        } else {
+          window.localStorage.setItem("practice",""+seed);
+        }
+      } catch(e) {
+      }
+    }
+  }
+
   const [puzzle, setPuzzle] = useState(() => {
-    return makePuzzle(dayNum);
+    return makePuzzle(seed);
   });
 
-  const [gameState, setGameState] = useLocalStorage<GameState>(gameDayStoragePrefix+dayNum, GameState.Playing);
-  const [guesses, setGuesses] = useLocalStorage<string[]>(guessesDayStoragePrefix+dayNum, puzzle.initialGuesses);
+  let stateStorageKey = practice ? "practiceState" : (gameDayStoragePrefix+seed);
+  let guessesStorageKey = practice ? "practiceGuesses" : (guessesDayStoragePrefix+seed);
+
+  const [gameState, setGameState] = useLocalStorage<GameState>(stateStorageKey, GameState.Playing);
+  const [guesses, setGuesses] = useLocalStorage<string[]>(guessesStorageKey, puzzle.initialGuesses);
   const [currentGuess, setCurrentGuess] = useState<string>("");
   const [hint, setHint] = useState<string>(getHintFromState());
   const [selectedColumn, setSelectedColumn] = useState<number>(0);
@@ -192,6 +213,14 @@ function Game(props: GameProps) {
       return `Start guessing!`;
     }
     return ``;
+  }
+  
+  const resetPractice = () => {
+    if (practice) {
+        window.localStorage.removeItem("practice");
+        window.localStorage.removeItem("practiceState");
+        window.localStorage.removeItem("practiceGuesses");
+    }
   }
 
   const onKey = (key: string) => {
@@ -237,8 +266,10 @@ function Game(props: GameProps) {
   const doWinOrLose = () => {
     if (guesses.includes(puzzle.target)) {
       setGameState(GameState.Won);
+      resetPractice();
     } else if (guesses.length >= props.maxGuesses) {
       setGameState(GameState.Lost);
+      resetPractice();
     } 
     setHint(getHintFromState());    
   };
@@ -362,15 +393,22 @@ function Game(props: GameProps) {
   const cheatText = cheat ? ` ${puzzle.target}` : "";
   const canPrev = dayNum > 1;
   const canNext = dayNum < todayDayNum;
+  const todayLink = "?";
+  const practiceLink = "?practice";
   const prevLink = "?d=" + (dayNum-1).toString();
   const nextLink = "?d=" + (dayNum+1).toString();
-
+ 
   return (
     <div className="Game" style={{ display: props.hidden ? "none" : "block" }}>
       <div className="Game-options">
-        {canPrev && <span><a href={prevLink}>prev</a> |</span>}
-        <span>day {dayNum}{`${cheatText}`}</span>
-        {canNext && <span>| <a href={nextLink}>next</a></span>}
+        {!practice && canPrev && <span><a href={prevLink}>prev</a> |</span>}
+        {!practice && <span>day {dayNum}{`${cheatText}`}</span>}
+        {!practice && canNext && <span>| <a href={nextLink}>next</a></span>}
+        {allowPractice && !practice && !canNext && <span>| <a href={practiceLink}>practice</a></span>}
+
+        {practice && <span><a href={todayLink}>today</a> |</span>}        
+        {practice && <span>practice{`${cheatText}`}</span>}
+        {practice && <span>| <a href={practiceLink} onClick={ ()=>{resetPractice();} }>new</a></span>}
       </div>
      
       <table
@@ -389,7 +427,7 @@ function Game(props: GameProps) {
         }}
       >
         {hint || `\u00a0`}
-        {gameState !== GameState.Playing && (
+        {gameState !== GameState.Playing && !practice && (
           <p>
           <button
             onClick={() => {
