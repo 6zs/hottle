@@ -163,7 +163,7 @@ function App() {
         maxDetail={"month"}
         onClickDay={(value: Date, event: any) => {
           if (value >= minDate && value <= maxDate) {
-            window.location.replace(window.location + "?x="+(1 + dateToNumber(value) - day1Number));
+            window.location.replace(window.location.origin + "?x="+(1 + dateToNumber(value) - day1Number));
           }
         }}
         formatDay={(locale: string, date: Date) => calendarFormatDay(locale, date)}
