@@ -1,5 +1,5 @@
 import "./App.css";
-import { day1Date, todayDate, maxGuesses, dateToNumber, day1Number, todayDayNum, dayNum, isDev } from "./util";
+import { day1Date, todayDate, maxGuesses, dateToNumber, day1Number, todayDayNum, dayNum, isDev, allowPractice, practice } from "./util";
 import Game, { emojiBlock, GameState } from "./Game";
 import { useEffect, useState } from "react";
 import { About } from "./About";
@@ -117,17 +117,21 @@ function App() {
   const maxDate = isDev ? new Date("January 1 3000") : todayDate;
   const minDate = isDev ? new Date("January 1 2000") : day1Date;
 
+  const dailyLink = "/";
+  const practiceLink = "/?unlimited";
+
   return (
     <div className={"App-container" + (colorBlind ? " color-blind" : "")}>
       <h1>
-        <span
-          style={{
-            color: "inherit",
-            fontStyle: "inherit",
-          }}
-        >
-         Warmle
-        </span>
+        <div className="Game-name-mode-container">
+          <span className="Game-name">Warmle</span>             
+          <div className="Game-modes">
+            {allowPractice && !practice && <a className="ModeEnabled">Daily</a>}
+            {allowPractice && practice && <a className="ModeDisabled" href={dailyLink}>Daily</a>}
+            {allowPractice && practice && <a className="ModeEnabled">Unlimited</a>}
+            {allowPractice && !practice && <a className="ModeDisabled" href={practiceLink}>Unlimited</a>}
+          </div>
+        </div>
       </h1>
       <div className="top-right">
         {page !== "game" ? (
@@ -159,7 +163,7 @@ function App() {
         maxDetail={"month"}
         onClickDay={(value: Date, event: any) => {
           if (value >= minDate && value <= maxDate) {
-            window.location.replace(window.location + "?d="+(1 + dateToNumber(value) - day1Number));
+            window.location.replace(window.location + "?x="+(1 + dateToNumber(value) - day1Number));
           }
         }}
         formatDay={(locale: string, date: Date) => calendarFormatDay(locale, date)}

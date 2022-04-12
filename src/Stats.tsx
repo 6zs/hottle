@@ -1,4 +1,4 @@
-import { maxGuesses, day1Number, dateToNumber, todayDayNum } from "./util";
+import { maxGuesses, day1Number, dateToNumber, todayDayNum, day1Date } from "./util";
 import { Puzzle, GameState, gameDayStoragePrefix, guessesDayStoragePrefix, makePuzzle } from "./Game"
 
 export interface Day
@@ -11,6 +11,11 @@ export interface Day
 export function GetDay(date: Date) : Day | null
 {
   const day = 1 + dateToNumber(date) - day1Number;
+  return Day(1 + dateToNumber(date) - day1Number);
+}
+
+function Day(day: number) : Day | null
+{
   try {
     const storedState = window.localStorage.getItem(gameDayStoragePrefix+day);
     const storedGuesses = window.localStorage.getItem(guessesDayStoragePrefix+day)
@@ -28,7 +33,7 @@ export function GetDay(date: Date) : Day | null
 
 export function Stats() {
 
-  let histogram : Record<number,number> = {};
+  let histogram: Record<number,number> = {};
   let streak: number = 0;
   let maxStreak: number = 0;
   let games: number = 0;
@@ -38,6 +43,45 @@ export function Stats() {
   for (let i = 2; i <= maxGuesses+1; ++i) {
     histogram[i] = 0;
   }
+
+  const OLD_gameDayStoragePrefix = "warmle-game-day-";
+  const OLD_guessesDayStoragePrefix = "warmle-guesses-day-";
+  
+  for (let OLD_day: number = 0; OLD_day < 1000; ++OLD_day) {
+    try {
+      const resultKey = OLD_gameDayStoragePrefix+OLD_day;
+      const guessesKey = OLD_guessesDayStoragePrefix+OLD_day;
+      const storedState = window.localStorage.getItem(resultKey);
+      const storedGuesses = window.localStorage.getItem(guessesKey)
+      let state = GameState.Playing;
+      let guesses = [];
+            
+      if (storedState) {
+        state = JSON.parse(storedState);
+        games++;
+      }
+      if (storedGuesses) {
+        guesses = JSON.parse(storedGuesses);
+      }
+            
+      if (state === GameState.Lost) {
+        streak = 0;
+      }
+
+      if (state === GameState.Won) {
+        histogram[guesses.length]++;
+        if (histogram[guesses.length] > maxHistogram) {
+          maxHistogram = histogram[guesses.length];
+        }
+        streak++;
+        wins++;
+        if (streak > maxStreak) {
+          maxStreak = streak;
+        }
+      }  
+    } catch(e) {
+    }   
+  }      
 
   for(let day: number = 0; day <= todayDayNum; ++day) 
   {
