@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Row, RowState } from "./Row";
 import dictionary from "./dictionary.json";
-import { Clue, hotclue, CluedLetter, describeClue, hotClueDistance } from "./clue";
+import { Clue, hotclue, CluedLetter, describeClue } from "./clue";
 import { Keyboard } from "./Keyboard";
 import targetList from "./targets.json";
 import {
@@ -15,7 +15,9 @@ import {
   makeRandom,
   practice,
   allowPractice,
-  todayDate
+  todayDate,
+  hotClueDistance,
+  experiment
 } from "./util";
 
 import { Day } from "./Stats"
@@ -395,7 +397,7 @@ function Game(props: GameProps) {
   const canPrev = dayNum > 1;
   const canNext = dayNum < todayDayNum;
   const todayLink = "?";
-  const practiceLink = "?unlimited";
+  const practiceLink = experiment ? "?experiment" : "?unlimited";
   const prevLink = "?x=" + (dayNum-1).toString();
   const nextLink = "?x=" + (dayNum+1).toString();
 

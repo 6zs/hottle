@@ -1,5 +1,5 @@
 import "./App.css";
-import { day1Date, todayDate, maxGuesses, dateToNumber, day1Number, todayDayNum, dayNum, isDev, allowPractice, practice } from "./util";
+import { day1Date, todayDate, maxGuesses, dateToNumber, day1Number, todayDayNum, dayNum, isDev, allowPractice, practice, experiment } from "./util";
 import Game, { emojiBlock, GameState } from "./Game";
 import { useEffect, useState } from "react";
 import { About } from "./About";
@@ -118,7 +118,7 @@ function App() {
   const minDate = isDev ? new Date("January 1 2000") : day1Date;
 
   const dailyLink = "/";
-  const practiceLink = "/?unlimited";
+  const practiceLink = experiment ? "?experiment" : "?unlimited"; 
 
   return (
     <div className={"App-container" + (colorBlind ? " color-blind" : "")}>

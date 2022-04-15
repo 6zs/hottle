@@ -1,3 +1,5 @@
+import { hotClueDistance } from "./util"
+
 export enum Clue {
   Absent,
   Elsewhere,
@@ -8,8 +10,6 @@ export interface CluedLetter {
   clue?: Clue;
   letter: string;
 }
-
-export const hotClueDistance = 3;
 
 export function hotclue(word: string, target: string): CluedLetter[] {
   return word.split("").map((letter, i) => {

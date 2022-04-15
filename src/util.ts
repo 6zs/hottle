@@ -18,13 +18,16 @@ export function urlParam(name: string): string | null {
     return new URLSearchParams(window.location.search).get(name);
 }
 
+export const experiment = urlParam("experiment") !== null;
+
 const paramDay = urlParam("x") ?? undefined;
-export const allowPractice = false;
-export const practice = allowPractice && urlParam("unlimited") !== null;
+export const allowPractice = experiment ? true : false;
+export const practice = experiment || (allowPractice && urlParam("unlimited") !== null);
 export const cheat = urlParam("cheat") !== null;
 export const dayNum : number = paramDay ? parseInt(paramDay) : 1 + todayNumber - day1Number;
 export const todayDayNum : number = 1 + todayNumber - day1Number;
 export const dictionarySet: Set<string> = new Set(dictionary);
+export const hotClueDistance = experiment ? 2 : 3;
 
 function mulberry32(a: number) {
   return function () {
