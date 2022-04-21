@@ -17,7 +17,6 @@ import {
   allowPractice,
   todayDate,
   hotClueDistance,
-  experiment
 } from "./util";
 
 import { Day } from "./Stats"
@@ -397,14 +396,15 @@ function Game(props: GameProps) {
   const canPrev = dayNum > 1;
   const canNext = dayNum < todayDayNum;
   const todayLink = "?";
-  const practiceLink = experiment ? "?experiment" : "?unlimited";
+  const practiceLink = "?unlimited";
+  const practiceLink2 = "?unlimited&warm=2";
   const prevLink = "?x=" + (dayNum-1).toString();
   const nextLink = "?x=" + (dayNum+1).toString();
 
   const [readNewsDay, setReadNewsDay] = useLocalStorage<number>("read-news-", 0);
-  let news = "";
+  let news = "News: Added Unlimited mode along with an option for harder puzzles where yellows only show if you're within 2.";
   let showNews = false;
-  let newsPostedDay = 13;
+  let newsPostedDay = 20;
   const canShowNews = news !== "" && dayNum >= newsPostedDay;
   const newsHasntBeenRead = readNewsDay < newsPostedDay;
   const newsReadToday = readNewsDay == dayNum;
@@ -423,8 +423,9 @@ function Game(props: GameProps) {
         {!practice && canNext && <span>| <a href={nextLink}>Next</a></span>}
         {practice && <span>{`${cheatText}`}</span>}
         {practice && <span><a href={practiceLink} onClick={ ()=>{resetPractice();} }>+ New Puzzle</a></span>}
+        {practice && <span><a href={practiceLink2} onClick={ ()=>{resetPractice();} }>+ New Puzzle (HARD)</a></span>}
       </div>
-      {showNews && (<div className="News">{news}
+      {showNews && (<div className="News">{news}<br/>{'\u00a0'}
       </div>) }
       <table
         className="Game-rows"
