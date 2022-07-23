@@ -1,7 +1,7 @@
 {
   "name": "warmle",
   "version": "0.1.0",
-  "homepage": "http://example.com/warmle/",
+  "homepage": "https://warmle.org/",
   "private": false,
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.1",

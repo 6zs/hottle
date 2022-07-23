@@ -3,6 +3,7 @@ import { Row, RowState } from "./Row";
 import dictionary from "./dictionary.json";
 import { Clue, hotclue, CluedLetter, describeClue } from "./clue";
 import { Keyboard } from "./Keyboard";
+import { Thermometer } from "./Thermometer";
 import targetList from "./targets.json";
 import {
   gameName,
@@ -303,71 +304,85 @@ function Game(props: GameProps) {
     return reduced;
   };
 
-  let cluedColumn: CluedLetter[] = selectedColumn !== -1 ? new Array(guesses.length) : [];
-  if (selectedColumn !== -1) {
-    guesses.map((guess,i) => {
-      const lockedIn = i < guesses.length;
-      if (lockedIn) {
-        let clue = hotclue(guess, puzzle.target);
-        cluedColumn[i] = clue[selectedColumn];
-      }
-    });
-  }
+  let getCluedColumn = (selectedColumn: number) => {
+    let cluedColumn: CluedLetter[] = selectedColumn !== -1 ? new Array(guesses.length) : [];
+    if (selectedColumn !== -1) {
+      guesses.map((guess,i) => {
+        const lockedIn = i < guesses.length;
+        if (lockedIn) {
+          let clue = hotclue(guess, puzzle.target);
+          cluedColumn[i] = clue[selectedColumn];
+        }
+      });
+    }  
+    return cluedColumn;
+  };
 
-  let letterInfo = new Map<string, Clue>();
-
-  for (const { clue, letter } of cluedColumn) {
+  let getLetterInfo = (cluedColumn: CluedLetter[]) => {
+    let letterInfo = new Map<string, Clue>();
+    for (const { clue, letter } of cluedColumn) {
     
-    if (clue === undefined) continue;
-
-    if (clue === Clue.Absent || clue === Clue.Correct ) {
-      letterInfo.set(letter, clue);
-    } else if (clue === Clue.Elsewhere ) {
-      letterInfo.set(letter, Clue.Absent);
-    }
-
-    let proximityLetters:string[] = [];
-    let nonProximityLetters:string[] = [];
-    for (let charCode="a".charCodeAt(0); charCode <= "z".charCodeAt(0); ++charCode) {
-      let distance = letter.charCodeAt(0) - charCode;
-      if ( distance === 0 ) continue;
-      if ( Math.abs(distance) > hotClueDistance ) {
-        nonProximityLetters = [...nonProximityLetters, String.fromCharCode(charCode)];
-      }
-      else {
-        proximityLetters = [...proximityLetters, String.fromCharCode(charCode)];
-      }
-    }
-
-    if (clue === Clue.Absent) {
-      for (let letter of proximityLetters) {
+      if (clue === undefined) continue;
+  
+      if (clue === Clue.Absent || clue === Clue.Correct ) {
+        letterInfo.set(letter, clue);
+      } else if (clue === Clue.Elsewhere ) {
         letterInfo.set(letter, Clue.Absent);
       }
-    }
-
-    if (clue === Clue.Elsewhere) {
-      for (let letter of proximityLetters) {
-        const old = letterInfo.get(letter);
-        if (old === undefined) {
-          letterInfo.set(letter, Clue.Elsewhere);
+  
+      let proximityLetters:string[] = [];
+      let nonProximityLetters:string[] = [];
+      for (let charCode="a".charCodeAt(0); charCode <= "z".charCodeAt(0); ++charCode) {
+        let distance = letter.charCodeAt(0) - charCode;
+        if ( distance === 0 ) continue;
+        if ( Math.abs(distance) > hotClueDistance ) {
+          nonProximityLetters = [...nonProximityLetters, String.fromCharCode(charCode)];
+        }
+        else {
+          proximityLetters = [...proximityLetters, String.fromCharCode(charCode)];
         }
       }
-      for (let letter of nonProximityLetters) {
-        const old = letterInfo.get(letter);
-        letterInfo.set(letter, Clue.Absent);
-      }      
-    }
-
-    if (clue === Clue.Correct) {
-      for (let letter of proximityLetters) {
-         letterInfo.set(letter, Clue.Absent);
+  
+      if (clue === Clue.Absent) {
+        for (let letter of proximityLetters) {
+          letterInfo.set(letter, Clue.Absent);
+        }
       }
-      for (let letter of nonProximityLetters) {
-        letterInfo.set(letter, Clue.Absent);
-      }  
+  
+      if (clue === Clue.Elsewhere) {
+        for (let letter of proximityLetters) {
+          const old = letterInfo.get(letter);
+          if (old === undefined) {
+            letterInfo.set(letter, Clue.Elsewhere);
+          }
+        }
+        for (let letter of nonProximityLetters) {
+          const old = letterInfo.get(letter);
+          letterInfo.set(letter, Clue.Absent);
+        }      
+      }
+  
+      if (clue === Clue.Correct) {
+        for (let letter of proximityLetters) {
+           letterInfo.set(letter, Clue.Absent);
+        }
+        for (let letter of nonProximityLetters) {
+          letterInfo.set(letter, Clue.Absent);
+        }  
+      }
     }
-  }
+    return letterInfo;
+  };
 
+  let cluedColumn = getCluedColumn(selectedColumn);
+  let letterInfo = getLetterInfo(cluedColumn);  
+  let letterInfos = [
+    getLetterInfo(getCluedColumn(0)),
+    getLetterInfo(getCluedColumn(1)),
+    getLetterInfo(getCluedColumn(2)),
+    getLetterInfo(getCluedColumn(3)),
+    getLetterInfo(getCluedColumn(4)),
+  ];
 
   const tableRows = Array(props.maxGuesses)
     .fill(undefined)
@@ -402,7 +417,7 @@ function Game(props: GameProps) {
   const nextLink = "?x=" + (dayNum+1).toString();
 
   const [readNewsDay, setReadNewsDay] = useLocalStorage<number>("read-news-", 0);
-  let news = "News: Added Unlimited mode along with an option for harder puzzles where yellows only show if you're within 2.";
+  let news = "";
   let showNews = false;
   let newsPostedDay = 20;
   const canShowNews = news !== "" && dayNum >= newsPostedDay;
@@ -465,6 +480,7 @@ function Game(props: GameProps) {
         letterInfo={letterInfo}
         onKey={onKey}
       />
+      <Thermometer letterInfos={letterInfos}/>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { Clue, clueClass } from "./clue";
+import dictionary from "./fives_dictionary.json";
 
 interface KeyboardProps {
   layout: string;
