@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/warmle/static/css/main.e256fbaf.css",
-    "main.js": "/warmle/static/js/main.7123b957.js",
-    "index.html": "/warmle/index.html",
-    "main.e256fbaf.css.map": "/warmle/static/css/main.e256fbaf.css.map",
-    "main.7123b957.js.map": "/warmle/static/js/main.7123b957.js.map"
+    "main.css": "/static/css/main.55d98830.css",
+    "main.js": "/static/js/main.ed940fca.js",
+    "index.html": "/index.html",
+    "main.55d98830.css.map": "/static/css/main.55d98830.css.map",
+    "main.ed940fca.js.map": "/static/js/main.ed940fca.js.map"
   },
   "entrypoints": [
-    "static/css/main.e256fbaf.css",
-    "static/js/main.7123b957.js"
+    "static/css/main.55d98830.css",
+    "static/js/main.ed940fca.js"
   ]
 }
