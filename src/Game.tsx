@@ -88,7 +88,10 @@ function isGoodInitialGuess(target: string, candidate: string) {
   let hints = hotclue(candidate, target);
   let green = countMatching(hints).get(Clue.Correct) ?? 0;
   let yellow = countMatching(hints).get(Clue.Elsewhere) ?? 0;
-  return green != 5;
+  if (!practice && dayNum <= 120) {
+    return green != 5;
+  }
+  return green == 0 && yellow <= 2;
 }
 
 function randomTarget(random: ()=>number): string {
@@ -462,15 +465,15 @@ function Game(props: GameProps) {
           <p>
           <button
             onClick={() => {
-              const score = gameState === GameState.Lost ? "X" : guesses.length;
+              const score = gameState === GameState.Lost ? "X" : (guesses.length-1);
               share(
-                "result copied to clipboard!",
-                `${gameName} #${dayNum} ${score}/${props.maxGuesses}\n` +
+                "Result copied to clipboard!",
+                `${gameName} #${dayNum} ${score}/${props.maxGuesses-1}\n` +
                 emojiBlock({guesses:guesses, puzzle:puzzle, gameState:gameState}, props.colorBlind)
               );
             }}
           >
-            share emoji results
+            Share
           </button>
           </p>
         )}
@@ -480,7 +483,7 @@ function Game(props: GameProps) {
         letterInfo={letterInfo}
         onKey={onKey}
       />
-      <Thermometer letterInfos={letterInfos}/>
+      <Thermometer letterInfos={letterInfos} gameState={gameState}/>
     </div>
   );
 }

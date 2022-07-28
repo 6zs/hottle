@@ -451,11 +451,6 @@ a {
   text-align: justify;
 }
 
-
-
-
-
-
 #countdown-wrap {
   width: 100%;
   height: 300px;
@@ -488,6 +483,30 @@ a {
   height: 20px;
   background: #FF5D50;
   z-index: 333;
+}
+
+#progress.freezing {
+  background: #08fbff;
+}
+
+#progress.cold {
+  background: #0c5ec9;
+}
+
+#progress.chilly {
+  background: rgb(197, 139, 3);
+}
+
+#progress.warm {
+  background: rgb(197, 139, 3);
+}
+
+#progress.hot {
+  background: #dd9505;
+}
+
+#progress.boiling {
+  background:  #ff5200
 }
 
 .goal-stat {
