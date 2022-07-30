@@ -124,7 +124,7 @@ function App() {
     <div className={"App-container" + (colorBlind ? " color-blind" : "")}>
       <h1>
         <div className="Game-name-mode-container">
-          <span className="Game-name">Warmle</span>             
+        <span className="Game-name"> Warmle </span>         
           <div className="Game-modes">
             {allowPractice && !practice && <a className="ModeEnabled">Daily</a>}
             {allowPractice && practice && <a className="ModeDisabled" href={dailyLink}>Daily</a>}

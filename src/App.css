@@ -160,7 +160,7 @@ table.Game-rows > tbody {
 }
 
 body.dark {
-  background-color: #404040;
+  background-color: #101010;
   color: #e0e0e0;
   color-scheme: dark;
 }
@@ -200,6 +200,10 @@ a:active {
   color: inherit;
   font-style: inherit;
   margin-right: 5px;
+
+  background: -webkit-linear-gradient(rgb(233, 86, 1), rgb(184, 158, 7));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .Game-modes {

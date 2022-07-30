@@ -17,7 +17,7 @@ export function About() {
       <hr />
       <p className="App-instructions">    
         <h1>Warmle rules</h1>   
-        <br />You get {maxGuesses} tries to guess the word.
+        <br />You get {maxGuesses-1} tries to guess the word.
         <br />
         <br />You start with a random clue.
         <br />It's the same for everyone.
@@ -26,12 +26,13 @@ export function About() {
         <br />🟩 Green if it's the right letter.
         <br />🟨 Yellow if it's the wrong letter <b>in that spot</b> but it's close! (within 3 letters alphabetically).
         <br />⬛ Grey if it's more than 3 away from the right letter.
+        <br />The thermometer at the bottom is based on how many words could still be the answer.
       </p>
       <hr />
       <p>
         Report issues{" "}
-        <a href="https://github.com/6zs/hottle/issues">here</a>
-        <br />Code based on a fork of <a href="https://github.com/lynn/hello-wordl">hello wordl</a>
+        <a href="https://github.com/6zs/hottle/issues">here</a> or send me an <a href="mailto:kellydornhaus@gmail.com">email</a> with feedback.
+        <br />Code based on a fork of <a href="https://github.com/lynn/hello-wordl">hello wordl</a>.
       </p>
     </div>
   );
