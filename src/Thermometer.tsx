@@ -1,5 +1,5 @@
 import { Clue, clueClass } from "./clue";
-import dictionary from "./dictionary.json";
+import dictionary from "./fives_dictionary.json";
 import { GameState } from "./Game";
 import { urlParam } from "./util"
 
@@ -25,10 +25,10 @@ export function Thermometer(props: ThermometerProps) {
     }
   }
   let text = numRemain == 1 ? "possiblility" : "possibilities";
-  let pctEliminated = (1.0 - numRemain/(dictionary.length*.005));
-  let pctShow = numRemain <= 1 ? 100 : Math.floor((100 * pctEliminated));
+  let pctEliminated = (1.0 - numRemain/(dictionary.length*.05));
+  let pctShow = Math.floor((100 * pctEliminated));
   if (pctShow != 100) {
-      pctShow = pctShow > 97 ? 97 : pctShow < 3 ? 3 : pctShow;
+      pctShow = pctShow > 99 ? 99 : pctShow < 10 ? 10 : pctShow;
   }
   if (props.gameState === GameState.Won) {
     pctShow = 100;
