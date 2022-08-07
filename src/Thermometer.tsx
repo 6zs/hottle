@@ -24,27 +24,34 @@ export function Thermometer(props: ThermometerProps) {
       ++numRemain;
     }
   }
-  let text = numRemain == 1 ? "possiblility" : "possibilities";
-  let pctEliminated = (1.0 - numRemain/(dictionary.length*.05));
-  let pctShow = Math.floor((100 * pctEliminated));
+
+  const ratioEliminated = (1.0 - numRemain/dictionary.length);
+
+  let pctShow = Math.floor(100 * Math.pow(ratioEliminated, 100));
+  
   if (pctShow != 100) {
       pctShow = pctShow > 99 ? 99 : pctShow < 10 ? 10 : pctShow;
   }
+  
   if (props.gameState === GameState.Won) {
     pctShow = 100;
   }
 
   let className = pctShow < 15
-  ? "freezing"
-  : pctShow < 35
-  ? "cold" 
-  : pctShow < 50
-  ? "chilly"
-  : pctShow < 65
-  ? "warm"
-  : pctShow < 85
-  ? "hot"
-  : "boiling";
+    ? "Freezing"
+    : pctShow < 35
+    ? "Cold" 
+    : pctShow < 60
+    ? "Chilly"
+    : pctShow < 70
+    ? "Warm"
+    : pctShow < 90
+    ? "Hot"
+    : "Boiling";
+
+  let temperatureText = props.gameState !== GameState.Won && (
+    <div className="Remaining-possibilities">{className}</div>
+  );
   
   return (
     <div id="countdown-wrap">
@@ -52,8 +59,8 @@ export function Thermometer(props: ThermometerProps) {
             <div id="progress" className={className} style={{width: pctShow + "%"}}>
             </div>
         </div>
+        {temperatureText}
     </div>    
   );
 
-  //<div className="Remaining-possibilities">{numRemain} {text}</div>
 }

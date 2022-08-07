@@ -489,27 +489,27 @@ a {
   z-index: 333;
 }
 
-#progress.freezing {
-  background: #08fbff;
+#progress.Freezing {
+  background: #00fbff;
 }
 
-#progress.cold {
-  background: #0c5ec9;
+#progress.Cold {
+  background: rgb(20, 133, 185)
 }
 
-#progress.chilly {
+#progress.Chilly {
+  background: #038ce1;
+}
+
+#progress.Warm {
   background: rgb(197, 139, 3);
 }
 
-#progress.warm {
-  background: rgb(197, 139, 3);
-}
-
-#progress.hot {
+#progress.Hot {
   background: #dd9505;
 }
 
-#progress.boiling {
+#progress.Boiling {
   background:  #ff5200
 }
 
