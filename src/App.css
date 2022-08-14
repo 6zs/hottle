@@ -50,7 +50,6 @@ body {
 
 .App-container {
   position: relative;
-  max-width: 500px;
   display: flex;
   flex-direction: column;
   margin: 0 auto;
@@ -88,6 +87,9 @@ table.Game-rows > tbody {
 }
 
 .Game-keyboard {
+  max-width: 500px;
+  margin: 0 auto;
+  justify-content: center;
   display: flex;
   flex-direction: column;
 }
@@ -200,6 +202,7 @@ a:active {
   color: inherit;
   font-style: inherit;
   margin-right: 5px;
+  word-break: break-all; 
 
   background: -webkit-linear-gradient(rgb(233, 86, 1), rgb(184, 158, 7));
   -webkit-background-clip: text;
@@ -211,6 +214,10 @@ a:active {
 }
 
 .Game-stats {
+  max-width: 500px;
+  margin: 0 auto;
+  justify-content: center;
+
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -311,6 +318,9 @@ a:active {
   margin-top: -1rem;
   line-height: 1.4;
   text-align: left;
+  max-width: 500px;
+  margin: 0 auto;
+  justify-content: center;  
 }
 
 .App-about b {
@@ -347,6 +357,9 @@ a:active {
 .Settings {
   text-align: left;
   font-size: 18px;
+  max-width: 500px;
+  margin: 0 auto;
+  justify-content: center;
 }
 
 .Settings-setting {
@@ -399,6 +412,12 @@ a:active {
 .App-container.color-blind .letter-elsewhere-fin,
 .App-container.color-blind .App-about b.yellow-bg {
   background-color: #85c0f9;
+}
+
+.react-calendar {
+  max-width: 500px;
+  margin: 0 auto;
+  justify-content: center;
 }
 
 .react-calendar__tile pre {
@@ -460,7 +479,9 @@ a {
   height: 300px;
   padding: 20px;
   font-family: arial;
-  max-width: 650px;
+  max-width: 525px;
+  margin: 0 auto;
+  justify-content: center;
 }
 
 #goal {
@@ -532,4 +553,41 @@ a {
 
 .goal-number {
   font-weight: bold;
+}
+
+.NextPrev {
+  font-weight: bold;
+  font-size: 20px;
+}
+
+
+.link-Image {
+  background-repeat: no-repeat;
+  background-size: cover;
+
+  font-size: 24px;
+  text-decoration: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  margin: 1px;
+
+  width: 24px;
+  height: 24px;
+}
+
+.link-About {
+  background-image: url("info.png");  
+}
+
+.link-Stats {
+  background-image: url("stats.png");  
+}
+
+.link-Settings {
+  background-image: url("settings.png");  
+}
+
+.link-Calendar {
+  background-image: url("calendar.png");  
 }

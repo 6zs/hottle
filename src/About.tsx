@@ -17,16 +17,19 @@ export function About() {
       <hr />
       <p className="App-instructions">    
         <h1>Warmle rules</h1>   
-        <br />You get {maxGuesses-1} tries to guess the word.
+        You get {maxGuesses-1} tries to guess the word.
         <br />
-        <br />You start with a random clue.
-        <br />It's the same for everyone.
+        <br />You start with a random clue. It's the same for everyone.        
         <br />
         <br />Letters in your guess are:
         <br />🟩 Green if it's the right letter.
         <br />🟨 Yellow if it's the wrong letter <b>in that spot</b> but it's close! (within 3 letters alphabetically).
         <br />⬛ Grey if it's more than 3 away from the right letter.
-        <br />The thermometer at the bottom is based on how many words could still be the answer.
+        <br />The thermometer at the bottom is a sort of progress meter; it's based on how many words in the dictionary you've eliminated as possible answers given your clues so far.
+        <p>
+        <h1>Super Warmle rules</h1>   
+        In the Super Warmle bonus games, the distance is reduced to 2 rather than 3. And in Super Warmle PLUS bonus games, it's reduced to 1.
+        </p>
       </p>
       <hr />
       <p>

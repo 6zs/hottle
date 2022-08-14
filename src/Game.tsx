@@ -12,12 +12,11 @@ import {
   dayNum,
   todayDayNum,
   cheat,
-  maxGuesses,
   makeRandom,
   practice,
-  allowPractice,
-  todayDate,
   hotClueDistance,
+  bonusPuzzle,
+  decoratedGameName,
 } from "./util";
 
 import { Day } from "./Stats"
@@ -127,7 +126,7 @@ function gameOverText(state: GameState, target: string) : string {
   return `You ${verbed}! The answer was ${target.toUpperCase()}. Play again tomorrow!`; 
 }
 
-const uniqueGame = 3000;
+const uniqueGame = 3000000 * (3 - hotClueDistance) + (practice ? 300000 : 3000);
 export function makePuzzle(seed: number) : Puzzle {
   let random = makeRandom(seed+uniqueGame);
   let target =  randomTarget(random);
@@ -177,8 +176,9 @@ function Game(props: GameProps) {
     return makePuzzle(seed);
   });
 
-  let stateStorageKey = practice ? "practiceState" : (gameDayStoragePrefix+seed);
-  let guessesStorageKey = practice ? "practiceGuesses" : (guessesDayStoragePrefix+seed);
+  let bonusKey = bonusPuzzle == "" ? "" : (".bonus-" + bonusPuzzle.toString());
+  let stateStorageKey = practice ? "practiceState" : (gameDayStoragePrefix+seed+bonusKey);
+  let guessesStorageKey = practice ? "practiceGuesses" : (guessesDayStoragePrefix+seed+bonusKey);
 
   const [gameState, setGameState] = useLocalStorage<GameState>(stateStorageKey, GameState.Playing);
   const [guesses, setGuesses] = useLocalStorage<string[]>(guessesStorageKey, puzzle.initialGuesses);
@@ -416,6 +416,7 @@ function Game(props: GameProps) {
   const todayLink = "?";
   const practiceLink = "?unlimited";
   const practiceLink2 = "?unlimited&warm=2";
+  const practiceLink3 = "?unlimited&warm=1";
   const prevLink = "?x=" + (dayNum-1).toString();
   const nextLink = "?x=" + (dayNum+1).toString();
 
@@ -432,16 +433,62 @@ function Game(props: GameProps) {
       setReadNewsDay(dayNum);
     }
   }
+
+  function bonusPuzzleName(bonusType: string) : string {
+    return bonusType === "hot" ? "Super Warmle" : bonusType === "boiling" ? "Super Warmle PLUS" : "";
+  }
+
+  function bonusPuzzleParam(bonusType: string) : string|false {
+    if ( bonusType === "hot" ) return "?bonus=hot&x="+dayNum;
+    if ( bonusType === "boiling" ) return "?bonus=boiling&x="+dayNum;
+    return false;
+  }
+
+  function nextBonusPuzzleType() {
+    return ( bonusPuzzle === "" 
+    ? "hot"
+    : bonusPuzzle === "hot"
+    ? "boiling"
+    : "" );
+  }
+
+  function prevBonusPuzzleType() {
+    return ( bonusPuzzle === "boiling" 
+    ? "hot"
+    : bonusPuzzle === "hot"
+    ? ""
+    : "" );
+  }
+
+
+  const currentBonusParam = (bonusPuzzle !== "" && !practice && bonusPuzzleParam(bonusPuzzle));
+  const currentBonusPuzzleName = (bonusPuzzle !== "" && !practice && bonusPuzzleName(bonusPuzzle));
+
+  const nextBonusPuzzleParam = (gameState == GameState.Won && !practice && bonusPuzzleParam(nextBonusPuzzleType()));
+  const nextBonusPuzzleName = (gameState === GameState.Won && !practice && bonusPuzzleName(nextBonusPuzzleType()));
+
+  const prevBonusPuzzleParam = (bonusPuzzle !== "" && !practice && bonusPuzzleParam(prevBonusPuzzleType()));
+  const prevBonusPuzzleName = (bonusPuzzle !== "" && !practice && bonusPuzzleName(prevBonusPuzzleType()));
+
+
+  const dailyLink = "/?x=" + dayNum;
+  const letterOrLetters = hotClueDistance === 2 ? "letter" : "letters";   
+  const bonusPuzzleLink = nextBonusPuzzleParam && (<p>Or do the <a href={nextBonusPuzzleParam}>{nextBonusPuzzleName}</a> bonus puzzle.<div>(You only get yellows if you're within {hotClueDistance-1} {letterOrLetters}.)</div></p>)
  
   return (
     <div className="Game" style={{ display: props.hidden ? "none" : "block" }}>
       <div className="Game-options">
-        {!practice && canPrev && <span><a href={prevLink}>Previous</a> |</span>}
-        {!practice && <span>Day {dayNum}{`${cheatText}`}</span>}
-        {!practice && canNext && <span>| <a href={nextLink}>Next</a></span>}
+        {!practice && canPrev && <span><a className="NextPrev" href={prevLink}>«</a> </span>}
+        {!practice && bonusPuzzle !== "" && <a href={dailyLink}>Day {dayNum}{`${cheatText}`}</a>}
+        {!practice && bonusPuzzle == "" && <span>Day {dayNum}{`${cheatText}`}</span>}
+        {!practice && prevBonusPuzzleParam && (<span>| <a href={prevBonusPuzzleParam}>{prevBonusPuzzleName}</a></span>)}        
+        {!practice && currentBonusParam && (<span>| {currentBonusPuzzleName}</span>)}
+        {!practice && nextBonusPuzzleParam && (<span>| <a href={nextBonusPuzzleParam}>{nextBonusPuzzleName}</a></span>)}
+        {!practice && canNext && <span> <a className="NextPrev" href={nextLink}>»</a></span>}
         {practice && <span>{`${cheatText}`}</span>}
-        {practice && <span><a href={practiceLink} onClick={ ()=>{resetPractice();} }>+ New Puzzle</a></span>}
-        {practice && <span><a href={practiceLink2} onClick={ ()=>{resetPractice();} }>+ New Puzzle (HARD)</a></span>}
+        {practice && <span><a href={practiceLink} onClick={ ()=>{resetPractice();} }>+ New</a></span>}
+        {practice && <span><a href={practiceLink2} onClick={ ()=>{resetPractice();} }>+ New Super</a></span>}
+        {practice && <span><a href={practiceLink3} onClick={ ()=>{resetPractice();} }>+ New Super PLUS</a></span>}
       </div>
       {showNews && (<div className="News">{news}<br/>{'\u00a0'}
       </div>) }
@@ -461,6 +508,7 @@ function Game(props: GameProps) {
         }}
       >
         {hint || `\u00a0`}
+        {hint && bonusPuzzleLink}
         {gameState !== GameState.Playing && !practice && (
           <p>
           <button
@@ -468,7 +516,7 @@ function Game(props: GameProps) {
               const score = gameState === GameState.Lost ? "X" : (guesses.length-1);
               share(
                 "Result copied to clipboard!",
-                `${gameName} #${dayNum} ${score}/${props.maxGuesses-1}\n` +
+                `${decoratedGameName} #${dayNum} ${score}/${props.maxGuesses-1}\n` +
                 emojiBlock({guesses:guesses, puzzle:puzzle, gameState:gameState}, props.colorBlind)
               );
             }}

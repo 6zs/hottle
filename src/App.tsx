@@ -1,5 +1,5 @@
 import "./App.css";
-import { day1Date, todayDate, maxGuesses, dateToNumber, day1Number, todayDayNum, dayNum, isDev, allowPractice, practice } from "./util";
+import { day1Date, todayDate, maxGuesses, dateToNumber, day1Number, todayDayNum, dayNum, isDev, allowPractice, practice, decoratedGameName } from "./util";
 import Game, { emojiBlock, GameState } from "./Game";
 import { useEffect, useState } from "react";
 import { About } from "./About";
@@ -87,7 +87,7 @@ function App() {
 
   const link = (emoji: string, label: string, page: Page) => (
     <button
-      className="emoji-link"
+      className={emoji === "" ? ("link-Image link-"+label) : "emoji-link"}
       onClick={() => setPage(page)}
       title={label}
       aria-label={label}
@@ -118,112 +118,115 @@ function App() {
   const minDate = isDev ? new Date("January 1 2000") : day1Date;
 
   const dailyLink = "/";
-  const practiceLink = "?unlimited"; 
+  const practiceLink = "?unlimited";
 
   return (
-    <div className={"App-container" + (colorBlind ? " color-blind" : "")}>
-      <h1>
-        <div className="Game-name-mode-container">
-        <span className="Game-name"> Warmle </span>         
-          <div className="Game-modes">
-            {allowPractice && !practice && <a className="ModeEnabled">Daily</a>}
-            {allowPractice && practice && <a className="ModeDisabled" href={dailyLink}>Daily</a>}
-            {allowPractice && practice && <a className="ModeEnabled">Unlimited</a>}
-            {allowPractice && !practice && <a className="ModeDisabled" href={practiceLink}>Unlimited</a>}
+    <div>
+      <div className={"App-container" + (colorBlind ? " color-blind" : "")}>
+        <h1>
+          <div className="Game-name-mode-container">
+          <span className="Game-name"> {decoratedGameName} </span>         
+            <div className="Game-modes">
+              {allowPractice && !practice && <a className="ModeEnabled" href={dailyLink}>Daily</a>}
+              {allowPractice && practice && <a className="ModeDisabled" href={dailyLink}>Daily</a>}
+              {allowPractice && practice && <a className="ModeEnabled">Unlimited</a>}
+              {allowPractice && !practice && <a className="ModeDisabled" href={practiceLink}>Unlimited</a>}
+            </div>
           </div>
+        </h1>
+
+        <div
+          style={{
+            position: "absolute",
+            left: 5,
+            top: 5,
+            visibility: page === "game" ? "visible" : "hidden",
+          }}
+        >
         </div>
-      </h1>
+        {page === "about" && <About />}
+        {page === "stats" && <Stats />}
+        {page === "calendar" && <Calendar 
+          maxDate={maxDate}
+          minDate={minDate}
+          minDetail={"month"}
+          maxDetail={"month"}
+          onClickDay={(value: Date, event: any) => {
+            if (value >= minDate && value <= maxDate) {
+              window.location.replace(window.location.origin + "?x="+(1 + dateToNumber(value) - day1Number));
+            }
+          }}
+          formatDay={(locale: string, date: Date) => calendarFormatDay(locale, date)}
+          tileContent={({ activeStartDate, date, view }) => calendarTileContent(activeStartDate, date, view) }
+        />}
+        {page === "settings" && (
+          <div className="Settings">
+            <div className="Settings-setting">
+              <input
+                id="dark-setting"
+                type="checkbox"
+                checked={dark}
+                onChange={() => setDark((x: boolean) => !x)}
+              />
+              <label htmlFor="dark-setting">dark theme</label>
+            </div>
+            <div className="Settings-setting">
+              <input
+                id="colorblind-setting"
+                type="checkbox"
+                checked={colorBlind}
+                onChange={() => setColorBlind((x: boolean) => !x)}
+              />
+              <label htmlFor="colorblind-setting">high-contrast colors</label>
+            </div>
+            <div className="Settings-setting">
+              <label htmlFor="keyboard-setting">keyboard layout:</label>
+              <select
+                name="keyboard-setting"
+                id="keyboard-setting"
+                value={keyboard}
+                onChange={(e) => setKeyboard(e.target.value)}
+              >
+                <option value="abcdefghij-klmnopqrs-BtuvwxyzE">A-Z</option>
+                <option value="qwertyuiop-asdfghjkl-BzxcvbnmE">QWERTY</option>
+                <option value="azertyuiop-qsdfghjklm-BwxcvbnE">AZERTY</option>
+                <option value="qwertzuiop-asdfghjkl-ByxcvbnmE">QWERTZ</option>
+                <option value="BpyfgcrlE-aoeuidhtns-qjkxbmwvz">Dvorak</option>
+                <option value="qwfpgjluy-arstdhneio-BzxcvbkmE">Colemak</option>
+              </select>
+              <input
+                style={{ marginLeft: 20 }}
+                id="enter-left-setting"
+                type="checkbox"
+                checked={enterLeft}
+                onChange={() => setEnterLeft((x: boolean) => !x)}
+              />
+              <label htmlFor="enter-left-setting">"Enter" on left side</label>
+            </div>
+          </div>
+        )}
+        <Game
+          maxGuesses={maxGuesses}
+          hidden={page !== "game"}
+          colorBlind={colorBlind}
+          keyboardLayout={keyboard.replaceAll(
+            /[BE]/g,
+            (x) => (enterLeft ? "EB" : "BE")["BE".indexOf(x)]
+          )}
+        />
+      </div>
       <div className="top-right">
-        {page !== "game" ? (
-          link("❌", "Close", "game")
-        ) : (
-          <>
-            {link("❓", "About", "about")}          
-            {link("⚙️", "Settings", "settings")}            
-            {link("📊", "Stats", "stats")}
-            {link("📅", "Calendar", "calendar")}
-          </>
-        )}
+          {page !== "game" ? (
+            link("❌", "Close", "game")
+          ) : (
+            <>
+              {link(/*"❓"*/"", "About", "about")}
+              {link(/*"⚙️"*/"", "Settings", "settings")} 
+              {link(/*"📊"*/"", "Stats", "stats")}
+              {link(/*"📅"*/"", "Calendar", "calendar")}
+            </>
+          )}
       </div>
-      <div
-        style={{
-          position: "absolute",
-          left: 5,
-          top: 5,
-          visibility: page === "game" ? "visible" : "hidden",
-        }}
-      >
-      </div>
-      {page === "about" && <About />}
-      {page === "stats" && <Stats />}
-      {page === "calendar" && <Calendar 
-        maxDate={maxDate}
-        minDate={minDate}
-        minDetail={"month"}
-        maxDetail={"month"}
-        onClickDay={(value: Date, event: any) => {
-          if (value >= minDate && value <= maxDate) {
-            window.location.replace(window.location.origin + "?x="+(1 + dateToNumber(value) - day1Number));
-          }
-        }}
-        formatDay={(locale: string, date: Date) => calendarFormatDay(locale, date)}
-        tileContent={({ activeStartDate, date, view }) => calendarTileContent(activeStartDate, date, view) }
-      />}
-      {page === "settings" && (
-        <div className="Settings">
-          <div className="Settings-setting">
-            <input
-              id="dark-setting"
-              type="checkbox"
-              checked={dark}
-              onChange={() => setDark((x: boolean) => !x)}
-            />
-            <label htmlFor="dark-setting">dark theme</label>
-          </div>
-          <div className="Settings-setting">
-            <input
-              id="colorblind-setting"
-              type="checkbox"
-              checked={colorBlind}
-              onChange={() => setColorBlind((x: boolean) => !x)}
-            />
-            <label htmlFor="colorblind-setting">high-contrast colors</label>
-          </div>
-          <div className="Settings-setting">
-            <label htmlFor="keyboard-setting">keyboard layout:</label>
-            <select
-              name="keyboard-setting"
-              id="keyboard-setting"
-              value={keyboard}
-              onChange={(e) => setKeyboard(e.target.value)}
-            >
-              <option value="abcdefghij-klmnopqrs-BtuvwxyzE">A-Z</option>
-              <option value="qwertyuiop-asdfghjkl-BzxcvbnmE">QWERTY</option>
-              <option value="azertyuiop-qsdfghjklm-BwxcvbnE">AZERTY</option>
-              <option value="qwertzuiop-asdfghjkl-ByxcvbnmE">QWERTZ</option>
-              <option value="BpyfgcrlE-aoeuidhtns-qjkxbmwvz">Dvorak</option>
-              <option value="qwfpgjluy-arstdhneio-BzxcvbkmE">Colemak</option>
-            </select>
-            <input
-              style={{ marginLeft: 20 }}
-              id="enter-left-setting"
-              type="checkbox"
-              checked={enterLeft}
-              onChange={() => setEnterLeft((x: boolean) => !x)}
-            />
-            <label htmlFor="enter-left-setting">"Enter" on left side</label>
-          </div>
-        </div>
-      )}
-      <Game
-        maxGuesses={maxGuesses}
-        hidden={page !== "game"}
-        colorBlind={colorBlind}
-        keyboardLayout={keyboard.replaceAll(
-          /[BE]/g,
-          (x) => (enterLeft ? "EB" : "BE")["BE".indexOf(x)]
-        )}
-      />
     </div>
   );
 }

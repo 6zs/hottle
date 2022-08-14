@@ -25,7 +25,19 @@ export const cheat = urlParam("cheat") !== null;
 export const dayNum : number = paramDay ? parseInt(paramDay) : 1 + todayNumber - day1Number;
 export const todayDayNum : number = 1 + todayNumber - day1Number;
 export const dictionarySet: Set<string> = new Set(dictionary);
-export const hotClueDistance = parseInt( urlParam("warm") ?? "3" );
+export const bonusPuzzle = urlParam("bonus") ?? "";
+
+export const hotClueDistance = bonusPuzzle === "hot" 
+  ? 2
+  : bonusPuzzle === "boiling"
+  ? 1
+  : parseInt( urlParam("warm") ?? "3" );
+
+export const decoratedGameName = hotClueDistance === 2
+  ? "Super Warmle"
+  : hotClueDistance  === 1
+  ? "Super Warmle PLUS"
+  : "Warmle";
 
 function mulberry32(a: number) {
   return function () {

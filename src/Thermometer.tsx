@@ -1,7 +1,6 @@
 import { Clue, clueClass } from "./clue";
 import dictionary from "./fives_dictionary.json";
 import { GameState } from "./Game";
-import { urlParam } from "./util"
 
 interface ThermometerProps {
   letterInfos: Map<string, Clue>[]; 
