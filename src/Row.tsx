@@ -10,6 +10,8 @@ interface RowProps {
   rowState: RowState;
   cluedLetters: CluedLetter[];
   cluedColumn: CluedLetter[];
+  currentGuess: [string,number];
+  onClick: (i: number) => void;
   annotation?: string;
 }
 
@@ -24,10 +26,14 @@ export function Row(props: RowProps) {
       if (isLockedIn && clue !== undefined) {
         letterClass += " " + clueClass(clue);
       }
+      if (isEditing && i == props.currentGuess[1]) {
+        letterClass += " " + "Row-cursor";
+      }
       return (
         <td
           key={i}
           className={letterClass}
+          onClick={()=>props.onClick(i)}
           aria-live={isEditing ? "assertive" : "off"}
           aria-label={
             isLockedIn
@@ -45,9 +51,7 @@ export function Row(props: RowProps) {
   return (
     <tr className={rowClass}>
       {letterDivs}
-      {props.annotation && (
-        <span className="Row-annotation">{props.annotation}</span>
-      )}
+      
     </tr>
   );
 }

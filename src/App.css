@@ -40,6 +40,17 @@ body {
   font-weight: bold;
 }
 
+
+body.dark .Row-cursor {
+  border: 2px solid white;
+  border-radius: 5px;
+}
+
+.Row-cursor {
+  border: 3px solid black;
+  border-radius: 5px;
+}
+
 .Row-annotation {
   margin-inline-start: 16px;
   width: 5em;

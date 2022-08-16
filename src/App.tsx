@@ -56,8 +56,8 @@ function App() {
   const [dark, setDark] = useSetting<boolean>("dark", prefersDark);
   const [colorBlind, setColorBlind] = useSetting<boolean>("colorblind", false);
   const [keyboard, setKeyboard] = useSetting<string>(
-    "keyboard",
-    "abcdefghij-klmnopqrs-BtuvwxyzE"
+    "keyboard-v2",
+    "abcdefghij-klmnopqrs-BDtuvwxyzE-LSR"
   );
   const [enterLeft, setEnterLeft] = useSetting<boolean>("enter-left", false);
 
@@ -187,12 +187,12 @@ function App() {
                 value={keyboard}
                 onChange={(e) => setKeyboard(e.target.value)}
               >
-                <option value="abcdefghij-klmnopqrs-BtuvwxyzE">A-Z</option>
-                <option value="qwertyuiop-asdfghjkl-BzxcvbnmE">QWERTY</option>
-                <option value="azertyuiop-qsdfghjklm-BwxcvbnE">AZERTY</option>
-                <option value="qwertzuiop-asdfghjkl-ByxcvbnmE">QWERTZ</option>
-                <option value="BpyfgcrlE-aoeuidhtns-qjkxbmwvz">Dvorak</option>
-                <option value="qwfpgjluy-arstdhneio-BzxcvbkmE">Colemak</option>
+                <option value="abcdefghij-klmnopqrs-BDtuvwxyzE-LSR">A-Z</option>
+                <option value="qwertyuiop-asdfghjkl-BzxcvbnmE-LSR">QWERTY</option>
+                <option value="azertyuiop-qsdfghjklm-BwxcvbnE-LSR">AZERTY</option>
+                <option value="qwertzuiop-asdfghjkl-ByxcvbnmE-LSR">QWERTZ</option>
+                <option value="BpyfgcrlE-aoeuidhtns-qjkxbmwvz-LSR">Dvorak</option>
+                <option value="qwfpgjluy-arstdhneio-BzxcvbkmE-LSR">Colemak</option>
               </select>
               <input
                 style={{ marginLeft: 20 }}

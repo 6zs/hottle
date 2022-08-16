@@ -182,9 +182,8 @@ function Game(props: GameProps) {
 
   const [gameState, setGameState] = useLocalStorage<GameState>(stateStorageKey, GameState.Playing);
   const [guesses, setGuesses] = useLocalStorage<string[]>(guessesStorageKey, puzzle.initialGuesses);
-  const [currentGuess, setCurrentGuess] = useState<string>("");
+  const [currentGuess, setCurrentGuess] = useState<[string,number]>(["     ",0]);
   const [hint, setHint] = useState<string>(getHintFromState());
-  const [selectedColumn, setSelectedColumn] = useState<number>(0);
    
   const tableRef = useRef<HTMLTableElement>(null);
   async function share(copiedHint: string, text?: string) {
@@ -236,36 +235,55 @@ function Game(props: GameProps) {
     if (guesses.length === props.maxGuesses) {
       return;
     }
-    if (/^[a-z]$/i.test(key)) {
-      setCurrentGuess((guess) =>
-        (guess + key.toLowerCase()).slice(0, 5)
+    if (/^[a-z ]$/i.test(key)) {
+      setCurrentGuess(([guess,cursor]) => {
+          if ( cursor == -1 ) return [guess,cursor];
+          return [(guess.slice(0,cursor) + key.toLowerCase() + guess.slice(cursor+1)).slice(0, 5), cursor == 4 ? -1 : cursor+1]
+        }        
       );
       tableRef.current?.focus();
       setHint(getHintFromState());
-      setSelectedColumn((currentGuess.length+1 < 5) ? (currentGuess.length+1) : -1 );
     } else if (key === "Backspace") {
-      setCurrentGuess((guess) => guess.slice(0, -1));
+      setCurrentGuess(([guess,cursor]) => {
+        let realCursor = cursor == -1 ? 5 : cursor;
+        if (cursor != -1 && guess[cursor] != " " ) {
+          // delete at the cursor and back up if the cursor is currently on a typed letter
+          return [(guess.slice(0,cursor) + " " + guess.slice(cursor+1)).slice(0,5),Math.max(0,realCursor-1)];
+        }
+        // if the cursor is on a space, delete behind the cursor and back up
+        return [(guess.slice(0,realCursor-1) + " " + guess.slice(realCursor)).slice(0, 5),Math.max(0,realCursor-1)]
+      });
       setHint(getHintFromState());
-      setSelectedColumn(Math.max(0,currentGuess.length-1));
     } else if (key === "Enter") {
-      if (currentGuess.length !== 5) {
+      if (currentGuess[0].length !== 5 || currentGuess[0].lastIndexOf(" ") !== -1) {
         setHint("More letters, please.");
         return;
       }
-      if(guesses.includes(currentGuess)) {
+      if(guesses.includes(currentGuess[0])) {
         setHint("You've already guessed that!");
         return;
       }
-      if (!dictionary.includes(currentGuess)) {
+      if (!dictionary.includes(currentGuess[0])) {
         setHint(`That's not in the word list!`);
         return;
       }
 
-      setSelectedColumn(0);
-      setGuesses((guesses) => guesses.concat([currentGuess]));
-      setCurrentGuess("");
-      speak(describeClue(hotclue(currentGuess, puzzle.target)));
+      setGuesses((guesses) => guesses.concat([currentGuess[0]]));
+      setCurrentGuess(["     ",0]);
+      speak(describeClue(hotclue(currentGuess[0], puzzle.target)));
       doWinOrLose();
+    } else if (key === "ArrowRight") {
+      setCurrentGuess(([guess,cursor]) => [guess,cursor == 4 ? 0 : cursor+1]);
+    } else if (key === "ArrowLeft") {
+      setCurrentGuess(([guess,cursor]) => [guess,cursor == -1 ? 4 : cursor == 0 ? 4 : cursor-1]);
+    } else if (key === "Delete") {
+      setCurrentGuess(([guess,cursor]) => [(guess.slice(0,cursor) + " " + guess.slice(cursor+1)).slice(0,5),cursor]);
+    } else if (key === "SpaceBar" ) {
+      setCurrentGuess(([guess,cursor]) => {
+        if ( cursor == -1 ) return [guess,cursor];
+        return [(guess.slice(0,cursor) + " " + guess.slice(cursor+1)).slice(0, 5), cursor == 4 ? -1 : cursor+1]
+      }        
+    );
     }
   };
 
@@ -285,7 +303,7 @@ function Game(props: GameProps) {
       if (!e.ctrlKey && !e.metaKey) {
         onKey(e.key);
       }
-      if (e.key === "Backspace") {
+      if (["Backspace", "Delete", "SpaceBar", "ArrowLeft", "ArrowRight", " "].lastIndexOf(e.key) !== -1) {
         e.preventDefault();
       }
     };
@@ -377,7 +395,7 @@ function Game(props: GameProps) {
     return letterInfo;
   };
 
-  let cluedColumn = getCluedColumn(selectedColumn);
+  let cluedColumn = getCluedColumn(currentGuess[1]);
   let letterInfo = getLetterInfo(cluedColumn);  
   let letterInfos = [
     getLetterInfo(getCluedColumn(0)),
@@ -390,12 +408,14 @@ function Game(props: GameProps) {
   const tableRows = Array(props.maxGuesses)
     .fill(undefined)
     .map((_, i) => {
-      const guess = [...guesses, currentGuess][i] ?? "";
+      const guess = [...guesses, currentGuess[0]][i] ?? "";
       const cluedLetters = hotclue(guess, puzzle.target);
       const lockedIn = i < guesses.length;
       return (
         <Row
           key={i}         
+          currentGuess={currentGuess}
+          onClick={(i)=>(setCurrentGuess(([guess,cursor])=>[guess,i]))}
           rowState={
             lockedIn
               ? RowState.LockedIn

@@ -13,7 +13,7 @@ export function Keyboard(props: KeyboardProps) {
     .map((row) =>
       row
         .split("")
-        .map((key) => key.replace("B", "Backspace").replace("E", "Enter"))
+        .map((key) => key.replace("B", "Backspace").replace("E", "Enter").replace("D","Delete").replace("L","ArrowLeft").replace("R","ArrowRight").replace("S","SpaceBar"))
     );
 
   return (
@@ -38,7 +38,7 @@ export function Keyboard(props: KeyboardProps) {
                   props.onKey(label);
                 }}
               >
-                {label.replace("Backspace", "⌫")}
+                {label.replace("Backspace", "⌫").replace("Delete","DEL").replace("ArrowLeft","←").replace("ArrowRight","→").replace("SpaceBar","  ")}
               </button>
             );
           })}
