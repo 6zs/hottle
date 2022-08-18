@@ -1,4 +1,4 @@
-import { maxGuesses, day1Number, dateToNumber, todayDayNum, day1Date } from "./util";
+import { maxGuesses, day1Number, dateToNumber, todayDayNum, day1Date, bonusPuzzle } from "./util";
 import { Puzzle, GameState, gameDayStoragePrefix, guessesDayStoragePrefix, makePuzzle } from "./Game"
 
 export interface Day
@@ -17,8 +17,11 @@ export function GetDay(date: Date) : Day | null
 function Day(day: number) : Day | null
 {
   try {
-    const storedState = window.localStorage.getItem(gameDayStoragePrefix+day);
-    const storedGuesses = window.localStorage.getItem(guessesDayStoragePrefix+day)
+    const bonusKey = bonusPuzzle == "" ? "" : (".bonus-" + bonusPuzzle.toString());
+    const stateStorageKey = gameDayStoragePrefix+day+bonusKey;
+    const guessesStorageKey = guessesDayStoragePrefix+day+bonusKey;
+    const storedState = window.localStorage.getItem(stateStorageKey);
+    const storedGuesses = window.localStorage.getItem(guessesStorageKey)
     let state = GameState.Playing;
     if (storedState) {
       state = JSON.parse(storedState);
@@ -89,8 +92,12 @@ export function Stats() {
     let dayState: GameState = GameState.Playing;
     let dayGuesses: string[] = [];
     try {
-      const storedState = window.localStorage.getItem(gameDayStoragePrefix+day);
-      const storedGuesses = window.localStorage.getItem(guessesDayStoragePrefix+day);
+
+      const bonusKey = bonusPuzzle == "" ? "" : (".bonus-" + bonusPuzzle.toString());
+      const stateStorageKey = gameDayStoragePrefix+day+bonusKey;
+      const guessesStorageKey = guessesDayStoragePrefix+day+bonusKey;  
+      const storedState = window.localStorage.getItem(stateStorageKey);
+      const storedGuesses = window.localStorage.getItem(guessesStorageKey);
       if (storedState) {
         dayState = JSON.parse(storedState);
         haveDay = true;

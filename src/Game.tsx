@@ -176,9 +176,9 @@ function Game(props: GameProps) {
     return makePuzzle(seed);
   });
 
-  let bonusKey = bonusPuzzle == "" ? "" : (".bonus-" + bonusPuzzle.toString());
-  let stateStorageKey = practice ? "practiceState" : (gameDayStoragePrefix+seed+bonusKey);
-  let guessesStorageKey = practice ? "practiceGuesses" : (guessesDayStoragePrefix+seed+bonusKey);
+  const bonusKey = bonusPuzzle == "" ? "" : (".bonus-" + bonusPuzzle.toString());
+  const stateStorageKey = practice ? "practiceState" : (gameDayStoragePrefix+seed+bonusKey);
+  const guessesStorageKey = practice ? "practiceGuesses" : (guessesDayStoragePrefix+seed+bonusKey);
 
   const [gameState, setGameState] = useLocalStorage<GameState>(stateStorageKey, GameState.Playing);
   const [guesses, setGuesses] = useLocalStorage<string[]>(guessesStorageKey, puzzle.initialGuesses);
@@ -411,6 +411,7 @@ function Game(props: GameProps) {
       const guess = [...guesses, currentGuess[0]][i] ?? "";
       const cluedLetters = hotclue(guess, puzzle.target);
       const lockedIn = i < guesses.length;
+      const editingState = gameState === GameState.Playing ? RowState.Editing : RowState.Pending;
       return (
         <Row
           key={i}         
@@ -420,7 +421,7 @@ function Game(props: GameProps) {
             lockedIn
               ? RowState.LockedIn
               : (i === guesses.length)
-              ? RowState.Editing
+              ? editingState
               : RowState.Pending
           }
           cluedLetters={cluedLetters}

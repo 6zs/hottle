@@ -38,7 +38,7 @@ export function Keyboard(props: KeyboardProps) {
                   props.onKey(label);
                 }}
               >
-                {label.replace("Backspace", "⌫").replace("Delete","DEL").replace("ArrowLeft","←").replace("ArrowRight","→").replace("SpaceBar","  ")}
+                {label.replace("Backspace", "⌫").replace("Delete","Del").replace("ArrowLeft","←").replace("ArrowRight","→").replace("SpaceBar","  ")}
               </button>
             );
           })}
