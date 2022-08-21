@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Row, RowState } from "./Row";
-import dictionary from "./dictionary.json";
+import fives_dictionary from "./fives_dictionary.json";
+import offensive from "./offensive.json";
 import { Clue, hotclue, CluedLetter, describeClue } from "./clue";
 import { Keyboard } from "./Keyboard";
 import { Thermometer } from "./Thermometer";
@@ -61,6 +62,7 @@ interface GameProps {
 
 const eligible = targetList.slice(0, targetList.indexOf("murky") + 1).filter((word) => word.length === 5); // Words no rarer than this one
 
+
 function isValidClue(word: string) {
   if (/\*/.test(word)) {
     return false;
@@ -80,10 +82,39 @@ function countMatching(cluedLetters: CluedLetter[]) : Map<Clue, number> {
   return counts;
 }
 
+function levenshtein(a: string, b: string, max: number): number {
+  if (max <= 0) return 0;
+  if (a.length === 0) return b.length;
+  if (b.length === 0) return a.length;
+  if (a[0] === b[0]) return levenshtein(a.substring(1), b.substring(1), max);
+  if (max === 1) return 1;
+  return 1 + Math.min(
+      levenshtein(a, b.substring(1), max-1),
+      levenshtein(a.substring(1), b, max-1),
+      levenshtein(a.substring(1), b.substring(1), max-1)
+  );
+}
+
+const offensiveWords = offensive.filter((word) => word.length >= 4 && word.length <= 6); 
 function isGoodInitialGuess(target: string, candidate: string) {
   if (/\*/.test(candidate)) {
     return false;
   }
+
+  if(fives_dictionary.includes(candidate)) {
+    return false;
+  }
+
+  if (practice || dayNum >= 145) {
+    for(let word of offensiveWords) {
+      let max = 3;
+      let distance = levenshtein(candidate,word,max);
+      if (distance < max) {
+        return false;
+      }
+    }
+  }
+
   let hints = hotclue(candidate, target);
   let green = countMatching(hints).get(Clue.Correct) ?? 0;
   let yellow = countMatching(hints).get(Clue.Elsewhere) ?? 0;
@@ -263,7 +294,7 @@ function Game(props: GameProps) {
         setHint("You've already guessed that!");
         return;
       }
-      if (!dictionary.includes(currentGuess[0])) {
+      if (!fives_dictionary.includes(currentGuess[0])) {
         setHint(`That's not in the word list!`);
         return;
       }

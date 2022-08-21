@@ -139,26 +139,26 @@ export function Stats() {
 
   return (
     <div className="Game-stats">
-    <h1>games</h1>
+    <h1>Games</h1>
     <div className="Game-stats-games">
       <div className="stat">
         <div className="stat-num">{games}</div>
-        <div className="stat-label">played</div>
+        <div className="stat-label">Played</div>
       </div>
       <div className="stat">
         <div className="stat-num">{games === 0 ? 0 : Math.floor(100*wins/games)}</div>
-        <div className="stat-label">win %</div>
+        <div className="stat-label">Win %</div>
       </div>
       <div className="stat">
         <div className="stat-num">{streak}</div>
-        <div className="stat-label">streak</div>
+        <div className="stat-label">Streak</div>
       </div>
       <div className="stat">
         <div className="stat-num">{maxStreak}</div>
-        <div className="stat-label">max streak</div>
+        <div className="stat-label">Max Streak</div>
       </div>
     </div>
-    <h1>guesses</h1>
+    <h1>Guesses</h1>
     <div className="Game-stats-guesses">
       <div className="guess-stat"><div className="guess-count">1</div><div className="guess-graph"><div className="guess-bar" style={styles[2]}><div className="guess-games">{histogram[2]}</div></div></div></div>
       <div className="guess-stat"><div className="guess-count">2</div><div className="guess-graph"><div className="guess-bar" style={styles[3]}><div className="guess-games">{histogram[3]}</div></div></div></div>
