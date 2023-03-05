@@ -334,7 +334,7 @@ function Game(props: GameProps) {
       if (!e.ctrlKey && !e.metaKey) {
         onKey(e.key);
       }
-      if (["Backspace", "Delete", "SpaceBar", "ArrowLeft", "ArrowRight", " "].lastIndexOf(e.key) !== -1) {
+      if (!e.altKey && ["Backspace", "Delete", "SpaceBar", "ArrowLeft", "ArrowRight", " "].lastIndexOf(e.key) !== -1 && gameState == GameState.Playing) {
         e.preventDefault();
       }
     };
